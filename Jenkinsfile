@@ -2,6 +2,9 @@ pipeline {
   environment {
     registryCredential = "docker"
   }
+  tools {
+        maven 'Maven 3.6.3'
+  }
   agent any
   stages {
     stage(‘Build’) {
