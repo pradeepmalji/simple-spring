@@ -14,7 +14,7 @@ pipeline {
     stage(‘Load’) {
       steps{
         script {
-          app = docker.build("achyuth007/simple-spring")
+          app = docker.build("pradeepmalji/simple-spring")
         }
       }
     }
@@ -28,7 +28,7 @@ pipeline {
         }
       }
     }
-    stage('Deploy to ACS'){
+    stage('Deploy to GCP'){
       steps{
           withCredentials([azureServicePrincipal('dbb6d63b-41ab-4e71-b9ed-32b3be06eeb8')]) {
             sh 'echo "logging in" '

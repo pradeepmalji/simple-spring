@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: spring-helloworld
+  namespace: talfinder
 spec:
   replicas: 1
   selector:
@@ -14,9 +15,7 @@ spec:
     spec:
       containers:
       - name: spring-helloworld
-        image: achyuth007/simple-spring:latest
+        image: pradeepmalji/simple-spring:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
-     
-
