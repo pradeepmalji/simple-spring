@@ -5,7 +5,7 @@ pipeline {
     FE_SVC_NAME = "${APP_NAME}-frontend"
     CLUSTER = "jenkins-cd"
     CLUSTER_ZONE = "us-east1-d"
-    IMAGE_TAG = "docker.io/${PROJECT}/${APP_NAME}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+    IMAGE_TAG = "docker.io/${PROJECT}/${APP_NAME}:latest"
     JENKINS_CRED = "${PROJECT}"
     registryCredential = "docker_hub"
   }
@@ -71,14 +71,14 @@ spec:
     }
     stage(‘Load’) {
       steps{
-        script {
+        container('maven') { {
           app = docker.build("${IMAGE_TAG}")
         }
       }
     }
     stage(‘Deploy’) {
       steps{
-        script {
+        container('maven') { {
           docker.withRegistry( "https://registry.hub.docker.com", registryCredential ) {
            // dockerImage.push()
           app.push("${IMAGE_TAG}")
