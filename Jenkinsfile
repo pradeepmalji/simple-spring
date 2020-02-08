@@ -1,4 +1,13 @@
 pipeline {
+  environment {
+    PROJECT = "pradeepmalji"
+    APP_NAME = "gceme"
+    FE_SVC_NAME = "${APP_NAME}-frontend"
+    CLUSTER = "jenkins-cd"
+    CLUSTER_ZONE = "us-east1-d"
+    IMAGE_TAG = "docker.io/${PROJECT}/${APP_NAME}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+    JENKINS_CRED = "${PROJECT}"
+  }
   agent {
       kubernetes {
       label 'sample-app'
@@ -39,23 +48,14 @@ spec:
         }
       }
     }
-    stage(‘Load’) {
-      steps{
-        script {
-          app = docker.build("pradeepmalji/simple-spring")
+    stage('Build and push image with Container Builder') {
+      steps {
+        container('gcloud') {
+          sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
         }
       }
     }
-     stage(‘Deploy’) {
-      steps{
-        script {
-          docker.withRegistry( "https://registry.hub.docker.com", registryCredential ) {
-           // dockerImage.push()
-          app.push("latest")
-          }
-        }
-      }
-    }
+     
     stage('Deploy to GCP'){
       steps{
           withCredentials([azureServicePrincipal('dbb6d63b-41ab-4e71-b9ed-32b3be06eeb8')]) {
