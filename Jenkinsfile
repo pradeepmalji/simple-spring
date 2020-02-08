@@ -34,7 +34,7 @@ spec:
   stages {
     stage(‘Build’) {
       steps{
-        script {
+        container('maven') {
           sh 'mvn clean install'
         }
       }
