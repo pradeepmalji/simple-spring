@@ -28,6 +28,13 @@ spec:
     env:
     - name: DOCKER_HOST
       value: tcp://localhost:2375
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: 1
+        memory: 2Gi
     command:
     - cat
     tty: true
@@ -43,14 +50,14 @@ spec:
     volumeMounts:
       - name: dind-storage
         mountPath: /var/lib/docker
-volumes:
-  - name: dind-storage
-    emptyDir: {}
   - name: kubectl
     image: gcr.io/cloud-builders/kubectl
     command:
     - cat
     tty: true
+  volumes:
+      - name: dind-storage
+        emptyDir: {}
 """
 }
   }
