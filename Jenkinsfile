@@ -2,7 +2,9 @@ pipeline {
   environment {
     registryCredential = "Docker_HUB"
   }
-  
+  agent {
+    
+  }
   stages {
     stage(‘Build’) {
       steps{
