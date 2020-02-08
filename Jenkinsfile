@@ -76,7 +76,7 @@ spec:
         }
       }
     }
-     stage(‘Deploy’) {
+    stage(‘Deploy’) {
       steps{
         script {
           docker.withRegistry( "https://registry.hub.docker.com", registryCredential ) {
@@ -86,7 +86,7 @@ spec:
         }
       }
     }
-    stage('Deploy to GCP'){
+    stage(‘DeployToGCP’){
       steps{
         container('kubectl'){
             sh 'kubectl apply -f sample.yaml'
