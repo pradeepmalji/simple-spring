@@ -7,6 +7,7 @@ pipeline {
     CLUSTER_ZONE = "us-east1-d"
     IMAGE_TAG = "docker.io/${PROJECT}/${APP_NAME}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
     JENKINS_CRED = "${PROJECT}"
+    registryCredential = "docker_hub"
   }
   agent {
       kubernetes {
@@ -24,6 +25,9 @@ spec:
   containers:
   - name: maven
     image: maven:3-alpine
+    env:
+    - name: DOCKER_HOST
+      value: tcp://localhost:2375
     command:
     - cat
     tty: true
@@ -32,6 +36,16 @@ spec:
     command:
     - cat
     tty: true
+  - name: dind
+    image: docker:18.05-dind
+    securityContext:
+      privileged: true
+    volumeMounts:
+      - name: dind-storage
+        mountPath: /var/lib/docker
+volumes:
+  - name: dind-storage
+    emptyDir: {}
   - name: kubectl
     image: gcr.io/cloud-builders/kubectl
     command:
@@ -48,22 +62,42 @@ spec:
         }
       }
     }
-    stage('Build and push image with Container Builder') {
-      steps {
-        container('gcloud') {
-          sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
+    stage(‘Build Image’) {
+      steps{
+        container('maven') {
+          sh "docker build -t ${IMAGE_TAG} ."
         }
       }
     }
-     
+    stage(‘Push Image’) {
+      steps{
+        container('maven') {
+           sh "docker build -t ${IMAGE_TAG} ."
+        }
+      }
+    }
+    stage(‘Load’) {
+      steps{
+        script {
+          app = docker.build("${IMAGE_TAG}")
+        }
+      }
+    }
+     stage(‘Deploy’) {
+      steps{
+        script {
+          docker.withRegistry( "https://registry.hub.docker.com", registryCredential ) {
+           // dockerImage.push()
+          app.push("${IMAGE_TAG}")
+          }
+        }
+      }
+    }
     stage('Deploy to GCP'){
       steps{
-          withCredentials([azureServicePrincipal('dbb6d63b-41ab-4e71-b9ed-32b3be06eeb8')]) {
-            sh 'echo "logging in" '
-            sh 'az login --service-principal -u c5ceb42a-033d-4dcf-bc2b-b2a7b37bff21 -p xyeBmx1bynF2Z6T+dzCgklfQ+1CuNPI6aY7EdIfE0OI= -t be10e06f-0415-4faf-8faf-d4ccf24c1ede'
-            sh 'az account set -s 1e5fc2e8-f4df-4895-9f77-00e140031cb2'
-            sh 'az aks get-credentials --resource-group ilink --name gajacluster'
+        container('kubectl'){
             sh 'kubectl apply -f sample.yaml'
+        }  
       }
     }
   }
