@@ -62,20 +62,6 @@ volumes:
         }
       }
     }
-    stage(‘Build Image’) {
-      steps{
-        container('maven') {
-          sh "docker build -t ${IMAGE_TAG} ."
-        }
-      }
-    }
-    stage(‘Push Image’) {
-      steps{
-        container('maven') {
-           sh "docker build -t ${IMAGE_TAG} ."
-        }
-      }
-    }
     stage(‘Load’) {
       steps{
         script {
