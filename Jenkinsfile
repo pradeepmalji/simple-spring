@@ -1,6 +1,6 @@
 pipeline {
   environment {
-    PROJECT = "pradeepmalji"
+    PROJECT = "codepro-b61b8"
     APP_NAME = "gceme"
     FE_SVC_NAME = "${APP_NAME}-frontend"
     CLUSTER = "jenkins-cd"
