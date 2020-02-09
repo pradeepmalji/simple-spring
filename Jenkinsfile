@@ -26,8 +26,6 @@ spec:
   - name: maven
     image: maven:3-alpine
     env:
-    - name: DOCKER_HOST
-      value: tcp://localhost:2375
     resources:
       limits:
         cpu: 1
@@ -43,21 +41,11 @@ spec:
     command:
     - cat
     tty: true
-  - name: dind
-    image: docker:18.05-dind
-    securityContext:
-      privileged: true
-    volumeMounts:
-      - name: dind-storage
-        mountPath: /var/lib/docker
   - name: kubectl
     image: gcr.io/cloud-builders/kubectl
     command:
     - cat
     tty: true
-  volumes:
-      - name: dind-storage
-        emptyDir: {}
 """
 }
   }
