@@ -25,19 +25,6 @@ spec:
   containers:
   - name: maven
     image: maven:3-alpine
-    env:
-    resources:
-      limits:
-        cpu: 1
-        memory: 2Gi
-      requests:
-        cpu: 1
-        memory: 2Gi
-    command:
-    - cat
-    tty: true
-  - name: gcloud
-    image: gcr.io/cloud-builders/gcloud
     command:
     - cat
     tty: true
