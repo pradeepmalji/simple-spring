@@ -9,37 +9,18 @@ pipeline {
     JENKINS_CRED = "${PROJECT}"
     registryCredential = "docker_hub"
   }
+  
   agent {
-      kubernetes {
-      label 'sample-app'
-      defaultContainer 'jnlp'
-      yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-labels:
-  component: ci
-spec:
-  # Use service account that can deploy to all namespaces
-  serviceAccountName: cd-jenkins
-  containers:
-  - name: maven
-    image: maven:3-alpine
-    command:
-    - cat
-    tty: true
-  - name: kubectl
-    image: gcr.io/cloud-builders/kubectl
-    command:
-    - cat
-    tty: true
-"""
-}
+        docker {
+            image 'adoptopenjdk/openjdk11:jdk-11.0.2.9'
+            args '--network ci'
+      }
   }
+ 
   stages {
     stage(‘Build’) {
       steps{
-        container('maven') {
+        script {
           sh 'mvn clean install'
         }
       }
