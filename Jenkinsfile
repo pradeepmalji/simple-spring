@@ -71,17 +71,17 @@ spec:
     }
     stage(‘Load’) {
       steps{
-        container('maven') { 
-          docker.build("${IMAGE_TAG}")
+        script { 
+          app = docker.build("${IMAGE_TAG}")
         }
       }
     }
     stage(‘Deploy’) {
       steps{
-        container('maven') { 
+        script { 
           docker.withRegistry( "https://registry.hub.docker.com", registryCredential ) {
            // dockerImage.push()
-          docker.push("${IMAGE_TAG}")
+          app.push("${IMAGE_TAG}")
           }
         }
       }
