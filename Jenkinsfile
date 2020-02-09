@@ -58,17 +58,6 @@ spec:
         }
       }
     }
-    
-    stage('Deploy') {
-      steps{
-        script { 
-          docker.withRegistry( "https://registry.hub.docker.com", registryCredential ) {
-           // dockerImage.push()
-          app.push("${IMAGE_TAG}")
-          }
-        }
-      }
-    }
     stage('DeployToGCP'){
       steps{
         container('kubectl'){

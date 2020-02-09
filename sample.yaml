@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: spring-helloworld
-        image: pradeepmalji/simple-spring:latest
+        image: gcr.io/codepro-b61b8/gceme
         imagePullPolicy: Always
         ports:
         - containerPort: 80
