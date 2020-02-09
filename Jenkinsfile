@@ -11,28 +11,54 @@ pipeline {
   }
   
   agent {
-        docker {
-            image 'adoptopenjdk/openjdk11:jdk-11.0.2.9'
-            args '--network ci'
-      }
+    kubernetes {
+      label 'sample-app'
+      defaultContainer 'jnlp'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+labels:
+  component: ci
+spec:
+  # Use service account that can deploy to all namespaces
+  serviceAccountName: cd-jenkins
+  containers:
+  - name: maven
+    image: maven:3-alpine
+    command:
+    - cat
+    tty: true
+  - name: gcloud
+    image: gcr.io/cloud-builders/gcloud
+    command:
+    - cat
+    tty: true
+  - name: kubectl
+    image: gcr.io/cloud-builders/kubectl
+    command:
+    - cat
+    tty: true
+"""
+}
   }
  
   stages {
-    stage(‘Build’) {
+    stage('Build') {
       steps{
-        script {
+        container('maven') {
           sh 'mvn clean install'
         }
       }
     }
-    stage(‘Load’) {
+    stage('Load') {
       steps{
         script { 
           app = docker.build("${IMAGE_TAG}")
         }
       }
     }
-    stage(‘Deploy’) {
+    stage('Deploy') {
       steps{
         script { 
           docker.withRegistry( "https://registry.hub.docker.com", registryCredential ) {
@@ -42,7 +68,7 @@ pipeline {
         }
       }
     }
-    stage(‘DeployToGCP’){
+    stage('DeployToGCP'){
       steps{
         container('kubectl'){
             sh 'kubectl apply -f sample.yaml'
