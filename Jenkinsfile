@@ -1,11 +1,11 @@
 pipeline {
   environment {
-    PROJECT = "codepro-b61b8"
+    PROJECT = "pradeepmalji"
     APP_NAME = "gceme"
     FE_SVC_NAME = "${APP_NAME}-frontend"
     CLUSTER = "jenkins-cd"
     CLUSTER_ZONE = "us-east1-d"
-    IMAGE_TAG = "gcr.io/${PROJECT}/${APP_NAME}:latest"
+    IMAGE_TAG = "docker.io/${PROJECT}/${APP_NAME}:latest"
     JENKINS_CRED = "${PROJECT}"
     registryCredential = "docker_hub"
   }
@@ -29,11 +29,6 @@ spec:
     command:
     - cat
     tty: true
-  - name: gcloud
-    image: gcr.io/cloud-builders/gcloud
-    command:
-    - cat
-    tty: true
   - name: kubectl
     image: gcr.io/cloud-builders/kubectl
     command:
@@ -51,10 +46,20 @@ spec:
         }
       }
     }
-    stage('Build and push image with Container Builder') {
-      steps {
-        container('gcloud') {
-          sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
+    stage('Load') {
+      steps{
+        script { 
+          app = docker.build("${IMAGE_TAG}")
+        }
+      }
+    }
+    stage('Deploy') {
+      steps{
+        script { 
+          docker.withRegistry( "https://registry.hub.docker.com", registryCredential ) {
+           // dockerImage.push()
+          app.push("${IMAGE_TAG}")
+          }
         }
       }
     }
